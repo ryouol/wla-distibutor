@@ -1,0 +1,18 @@
+{
+  "server": {
+    "httpAddr": ":8080",
+    "readTimeout": 10,
+    "writeTimeout": 10,
+    "idleTimeout": 60
+  },
+  "distributor": {
+    "queueSize": 10000,
+    "numWorkers": 10,
+    "maxRetries": 3,
+    "retryInterval": 5,
+    "strategy": "weighted_random"
+  },
+  "analyzer": {
+    "healthCheckInterval": 10
+  }
+} 

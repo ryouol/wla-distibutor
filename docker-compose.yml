@@ -1,0 +1,118 @@
+version: '3'
+
+services:
+  distributor:
+    build:
+      context: .
+      dockerfile: ./docker/distributor/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - log-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  analyzer1:
+    build:
+      context: .
+      dockerfile: ./docker/analyzer/Dockerfile
+    command: ["-id", "analyzer1", "-port", "8081", "-weight", "0.4"]
+    networks:
+      - log-network
+    depends_on:
+      - distributor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  analyzer2:
+    build:
+      context: .
+      dockerfile: ./docker/analyzer/Dockerfile
+    command: ["-id", "analyzer2", "-port", "8082", "-weight", "0.3"]
+    networks:
+      - log-network
+    depends_on:
+      - distributor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  analyzer3:
+    build:
+      context: .
+      dockerfile: ./docker/analyzer/Dockerfile
+    command: ["-id", "analyzer3", "-port", "8083", "-weight", "0.2"]
+    networks:
+      - log-network
+    depends_on:
+      - distributor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  analyzer4:
+    build:
+      context: .
+      dockerfile: ./docker/analyzer/Dockerfile
+    command: ["-id", "analyzer4", "-port", "8084", "-weight", "0.1"]
+    networks:
+      - log-network
+    depends_on:
+      - distributor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  generator:
+    build:
+      context: .
+      dockerfile: ./docker/generator/Dockerfile
+    command: ["-url", "http://distributor:8080", "-rate", "20", "-batch", "10", "-duration", "60s"]
+    networks:
+      - log-network
+    depends_on:
+      - distributor
+      - analyzer1
+      - analyzer2
+      - analyzer3
+      - analyzer4
+
+  setup:
+    image: curlimages/curl:latest
+    depends_on:
+      distributor:
+        condition: service_healthy
+      analyzer1:
+        condition: service_healthy
+      analyzer2:
+        condition: service_healthy
+      analyzer3:
+        condition: service_healthy
+      analyzer4:
+        condition: service_healthy
+    networks:
+      - log-network
+    command: >
+      sh -c "
+        curl -X POST -H 'Content-Type: application/json' -d '{\"id\":\"analyzer1\",\"url\":\"http://analyzer1:8081\",\"weight\":0.4}' http://distributor:8080/api/v1/analyzers &&
+        curl -X POST -H 'Content-Type: application/json' -d '{\"id\":\"analyzer2\",\"url\":\"http://analyzer2:8082\",\"weight\":0.3}' http://distributor:8080/api/v1/analyzers &&
+        curl -X POST -H 'Content-Type: application/json' -d '{\"id\":\"analyzer3\",\"url\":\"http://analyzer3:8083\",\"weight\":0.2}' http://distributor:8080/api/v1/analyzers &&
+        curl -X POST -H 'Content-Type: application/json' -d '{\"id\":\"analyzer4\",\"url\":\"http://analyzer4:8084\",\"weight\":0.1}' http://distributor:8080/api/v1/analyzers
+      "
+
+networks:
+  log-network:
+    driver: bridge 
