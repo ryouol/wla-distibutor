@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yourusername/log-distributor/pkg/analyzer"
-	"github.com/yourusername/log-distributor/pkg/api"
-	"github.com/yourusername/log-distributor/pkg/distributor"
+	"github.com/ryouol/log-distributor/pkg/analyzer"
+	"github.com/ryouol/log-distributor/pkg/api"
+	"github.com/ryouol/log-distributor/pkg/distributor"
 )
 
 func main() {
@@ -32,7 +32,6 @@ func main() {
 	// Create log distributor
 	logDistributor := distributor.NewLogDistributor(
 		analyzerPool,
-		distributor.WeightedRandom,
 		*queueSize,
 		*numWorkers,
 		*maxRetries,

@@ -15,6 +15,11 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   analyzer1:
     build:
@@ -30,6 +35,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   analyzer2:
     build:
@@ -45,6 +55,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   analyzer3:
     build:
@@ -60,6 +75,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   analyzer4:
     build:
@@ -75,6 +95,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   generator:
     build:
@@ -89,6 +114,11 @@ services:
       - analyzer2
       - analyzer3
       - analyzer4
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   setup:
     image: curlimages/curl:latest
@@ -112,6 +142,11 @@ services:
         curl -X POST -H 'Content-Type: application/json' -d '{\"id\":\"analyzer3\",\"url\":\"http://analyzer3:8083\",\"weight\":0.2}' http://distributor:8080/api/v1/analyzers &&
         curl -X POST -H 'Content-Type: application/json' -d '{\"id\":\"analyzer4\",\"url\":\"http://analyzer4:8084\",\"weight\":0.1}' http://distributor:8080/api/v1/analyzers
       "
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   log-network:

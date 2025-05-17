@@ -6,19 +6,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yourusername/log-distributor/pkg/analyzer"
-	"github.com/yourusername/log-distributor/pkg/models"
+	"github.com/ryouol/log-distributor/pkg/analyzer"
+	"github.com/ryouol/log-distributor/pkg/models"
 )
 
-// Distribution strategy types
-type DistributionStrategy int
-
-const (
-	// WeightedRandom distributes logs randomly based on analyzer weights
-	WeightedRandom DistributionStrategy = iota
-	// WeightedRoundRobin distributes logs in a round-robin fashion considering weights
-	WeightedRoundRobin
-)
+// AnalyzerPoolInterface defines methods required by the log distributor
+type AnalyzerPoolInterface interface {
+	GetActiveAnalyzers() []*analyzer.Analyzer
+	SendLogPacket(ctx context.Context, a *analyzer.Analyzer, p *models.LogPacket) error
+	StartHealthCheck(ctx context.Context)
+}
 
 // DistributionMetrics tracks distribution metrics
 type DistributionMetrics struct {
@@ -31,8 +28,7 @@ type DistributionMetrics struct {
 
 // LogDistributor distributes logs among analyzers based on their weights
 type LogDistributor struct {
-	analyzerPool  *analyzer.AnalyzerPool
-	strategy      DistributionStrategy
+	analyzerPool  AnalyzerPoolInterface
 	metrics       *DistributionMetrics
 	workQueue     chan *models.LogPacket
 	maxWorkers    int
@@ -45,8 +41,7 @@ type LogDistributor struct {
 
 // NewLogDistributor creates a new log distributor
 func NewLogDistributor(
-	pool *analyzer.AnalyzerPool,
-	strategy DistributionStrategy,
+	pool AnalyzerPoolInterface,
 	queueSize int,
 	maxWorkers int,
 	maxRetries int,
@@ -54,7 +49,6 @@ func NewLogDistributor(
 ) *LogDistributor {
 	return &LogDistributor{
 		analyzerPool:  pool,
-		strategy:      strategy,
 		workQueue:     make(chan *models.LogPacket, queueSize),
 		retryQueue:    make(chan *models.LogPacket, queueSize),
 		maxWorkers:    maxWorkers,
@@ -198,18 +192,8 @@ func (d *LogDistributor) processPacket(ctx context.Context, packet *models.LogPa
 		return
 	}
 
-	// Select analyzer based on strategy
-	var selectedAnalyzer *analyzer.Analyzer
-
-	switch d.strategy {
-	case WeightedRandom:
-		selectedAnalyzer = d.selectAnalyzerRandom(activeAnalyzers)
-	case WeightedRoundRobin:
-		// Implementation would go here
-		selectedAnalyzer = d.selectAnalyzerRandom(activeAnalyzers) // Fallback to random for now
-	default:
-		selectedAnalyzer = d.selectAnalyzerRandom(activeAnalyzers)
-	}
+	// Select analyzer using weighted random selection
+	selectedAnalyzer := d.selectAnalyzerRandom(activeAnalyzers)
 
 	// Send packet to selected analyzer
 	err := d.analyzerPool.SendLogPacket(ctx, selectedAnalyzer, packet)

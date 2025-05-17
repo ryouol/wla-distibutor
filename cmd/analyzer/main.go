@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/yourusername/log-distributor/pkg/models"
+	"github.com/ryouol/log-distributor/pkg/models"
 )
 
 // MockAnalyzer represents a mock log analyzer service

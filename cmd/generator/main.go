@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/yourusername/log-distributor/pkg/models"
+	"github.com/ryouol/log-distributor/pkg/models"
 )
 
 var (

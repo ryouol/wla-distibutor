@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/yourusername/log-distributor/pkg/analyzer"
-	"github.com/yourusername/log-distributor/pkg/distributor"
-	"github.com/yourusername/log-distributor/pkg/models"
+	"github.com/ryouol/log-distributor/pkg/analyzer"
+	"github.com/ryouol/log-distributor/pkg/distributor"
+	"github.com/ryouol/log-distributor/pkg/models"
 )
 
 // Server represents the HTTP API server

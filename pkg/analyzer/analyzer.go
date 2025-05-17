@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yourusername/log-distributor/pkg/models"
+	"github.com/ryouol/log-distributor/pkg/models"
 )
 
 // Analyzer represents a log analyzer service

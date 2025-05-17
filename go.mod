@@ -1,4 +1,4 @@
-module github.com/yourusername/log-distributor
+module github.com/ryouol/log-distributor
 
 go 1.20
 
